@@ -1,0 +1,78 @@
+//mostrar todos os nodes
+kubectl get nodes
+
+//mostarr todos os cluster no k3d, aqui ja da pra ver se tem loadbalancer
+k3d cluster list
+
+//deletar cluster
+k3d cluster delete
+
+//criação de um cluster de alta disponibilidade com 3 nodes e 3 works-node
+k3d cluster create meucluster --servers 3 --agents 3
+
+//aplicar o manifesto do k8s, a diferença é que o create precisa criar do zero, e o apply ele tanto cria como aplica atualização se tiver criado
+o create nao atualiza
+kubectl create -f k8s/deployment.yaml
+ou
+kubectl apply -f k8s/deployment.yaml
+
+//replicaset em execução
+kubectl get replicaset
+
+//comando para ficar verificando quantos replicasets fica subindo
+kubectl apply -f k8s/deployment.yaml && watch 'kubectl get pod'
+
+//ver mais detalhes dos pods
+kubectl get nodes -o wide
+
+//deletar pod
+kubectl delete pod nomedopod
+obs: deletando ele, a replica vai criar outro, por conta do replicaset
+
+//fazer redirecionamento de porta para acessar um pod especifico
+kubectl port-forward pod/nomedopod 8080:5000
+
+//service
+serve para exportar os pods porem tem varios tipos diferentes
+
+//mostrar tudo de principal do cluster
+kubectl get all
+
+--- Explicação do manifesto
+apiVersion = seria a versão do k8s, dentro do kubernetes a gente consegue verificar com o comando
+kubectl api-resource
+como queremos criar um deployment por exemplo, conseguimos pegar o APIVERSION e o KIND do deployment para colocar
+no manifesto
+
+metadata: seria o nome
+
+spec = seria a especificação do deployment
+por exemplo, definir o template do pod, qual tipo de pod que os replicaset gerencia e a quantidade de replicas
+
+selector = dentro do spec, seria os objetos para interagir, label é como se fosse colocar tag de chave e valor que o selector utiliza
+
+matchLabels = seria a label que precisa ter no pod
+
+template = seria o que o pod vai gerenciar, não precisa colocar o apiversion e o kind , então nao precisa deficir o pod
+obs: como o pod vai ser destruido e criado manualmente, nao precisa ter name, porem precisa colocar igualzinho a label chave e valor
+
+ports
+targetPort: seria a porta de dentro do pod
+ports: a porta fora do pod
+
+--- SERVICE
+ClusterIP = é utilizado apenas internamente
+só usa se for preciso utilizar pod com pod
+
+nodePort = expoe o pod para o mundo externo
+ele vai ser acessivel de qualquer maquina, sempre que for criado ele cria uma porta no range 30000 até 32967 podendo acessar com qualquer IP que faz parte do cluster
+
+loadbalancer: utiliza mais em cenario de cloud, tambem faz igual o nodePort, porem ele cria um loadbalancer na frente do service, porem cria apenas 1 IP criado como um EKS, o cloudprovider vai dar
+pode usar no onprice mas precisa do metalLB (porem não é comentado aqui), o foco é no cloud
+
+colocando um TYPE tipo nodePort no deployment.yaml, ele cria a porta 30000
+
+
+--- Boas praticas
+
+Colocar no mesmo arquivo yaml 

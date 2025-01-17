@@ -1,3 +1,6 @@
+//subindo uma img docker
+docker build -t luuucasmoreia/conversao-distancia:v2 --push . 
+
 //mostrar todos os nodes
 kubectl get nodes
 
@@ -9,6 +12,9 @@ k3d cluster delete
 
 //criação de um cluster de alta disponibilidade com 3 nodes e 3 works-node
 k3d cluster create meucluster --servers 3 --agents 3
+
+//criação igual porem, expondo a porta para ser usado na nodeport porem utilizando a 30000 do container utilizando loadbalancer
+k3d cluster create meucluster --servers 1 --agents 2 -p "8080:30000@loadbalancer"
 
 //aplicar o manifesto do k8s, a diferença é que o create precisa criar do zero, e o apply ele tanto cria como aplica atualização se tiver criado
 o create nao atualiza
@@ -38,6 +44,11 @@ serve para exportar os pods porem tem varios tipos diferentes
 //mostrar tudo de principal do cluster
 kubectl get all
 
+//mostrar as versões do deployment
+kubectl rolout history deployment conversao-distancia
+
+
+
 --- Explicação do manifesto
 apiVersion = seria a versão do k8s, dentro do kubernetes a gente consegue verificar com o comando
 kubectl api-resource
@@ -60,6 +71,8 @@ ports
 targetPort: seria a porta de dentro do pod
 ports: a porta fora do pod
 
+nodePort: especificação da porta 30000 para forçar o nodeport a usar essa, para que a baide do container seja forçado e nao altere
+
 --- SERVICE
 ClusterIP = é utilizado apenas internamente
 só usa se for preciso utilizar pod com pod
@@ -76,3 +89,8 @@ colocando um TYPE tipo nodePort no deployment.yaml, ele cria a porta 30000
 --- Boas praticas
 
 Colocar no mesmo arquivo yaml 
+
+utilizando o script
+k3d cluster create meucluster --servers 1 --agents 2 -p "8080:30000@loadbalancer"
+ele cria o cluster com a baind do 8080 pra minha porta
+porem no deployment eu especifico qual porta o nodeport usar para forçar ela utilizar no 30000

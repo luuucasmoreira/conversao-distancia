@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
         - name: conversao-distancia
-          image: luuucasmoreia/conversao-distancia:v1
+          image: luuucasmoreia/conversao-distancia:v3
           ports:
             - containerPort: 5000
 ---
@@ -28,4 +28,5 @@ spec:
   ports:
   - port: 80
     targetPort: 5000
+    nodePort: 30000
   type: NodePort
